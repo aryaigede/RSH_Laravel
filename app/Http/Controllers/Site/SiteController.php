@@ -16,11 +16,6 @@ class SiteController extends Controller
         return view('site.layanan_umum');
     }
 
-    public function login()
-    {
-        return view('site.login');
-    }
-
     public function struktur()
     {
         return view('site.struktur');

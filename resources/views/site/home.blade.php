@@ -213,7 +213,7 @@
                 <li><a href="{{ route('site.visi-misi') }}">Visi Misi dan Tujuan</a></li>
             </ul>
         </div>
-        <a href="{{ route('site.login') }}" class="login-button">Login</a>
+        <a href="{{ route('login') }}" class="login-button">Login</a>
     </div>
 
 
