@@ -49,4 +49,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole');
     }
+
+    public function Pemilik()
+    {
+        return $this->hasOne(Pemilik::class, 'iduser', 'iduser');
+    }
+
+    public function RoleUser()
+    {
+        return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
+    }
 }
