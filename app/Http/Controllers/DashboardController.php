@@ -61,6 +61,10 @@ class DashboardController extends Controller
                 $relationships = ['rekamMedis', 'kodeTindakanTerapi'];
                 $columns = ['detail', 'rekam_medis', 'kode_tindakan_terapi'];
                 break;
+            case 'TemuDokter':
+                $relationships = ['pet', 'roleUser', 'rekamMedis'];
+                $columns = ['no_urut', 'waktu_daftar', 'status', 'pet', 'role_user', 'rekam_medis'];
+                break;
             default:
                 $columns = (new $modelClass)->getFillable();
                 break;
@@ -88,6 +92,7 @@ class DashboardController extends Controller
             'Pemilik',
             'RekamMedis',
             'DetailRekamMedis',
+            'TemuDokter',
             'Role',
             'User',
         ];
@@ -96,7 +101,7 @@ class DashboardController extends Controller
             1 => $allModels,
             2 => ['DetailRekamMedis', 'RekamMedis'],
             3 => ['RekamMedis'],
-            4 => ['Pet', 'Pemilik'],
+            4 => ['Pet', 'Pemilik', 'TemuDokter'],
             5 => [],
             default => [],
         };
@@ -111,6 +116,16 @@ class DashboardController extends Controller
         // Get fillable fields from the model
         $model = new $modelClass;
         $data = $request->only($model->getFillable());
+
+        if ($modelName === 'TemuDokter') {
+            $today = now()->toDateString();
+            $nextNumber = ($modelClass::whereDate('waktu_daftar', $today)->max('no_urut') ?? 0) + 1;
+
+            $data['no_urut'] = $data['no_urut'] ?? $nextNumber;
+            $data['waktu_daftar'] = $data['waktu_daftar'] ?? now();
+            $data['status'] = $data['status'] ?? 'N';
+            // Leave idrole_user as provided or null; FK expects role_user.idrole_user
+        }
         
         // Create the record
         $modelClass::create($data);

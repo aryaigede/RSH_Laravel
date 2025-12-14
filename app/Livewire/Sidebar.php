@@ -42,6 +42,7 @@ class Sidebar extends Component
             'Pemilik' => false,
             'RekamMedis' => false,
             'DetailRekamMedis' => false,
+            'TemuDokter' => false,
             'Role' => false,
             'User' => false,
         ];
@@ -50,7 +51,7 @@ class Sidebar extends Component
             1 => array_keys($base), // Admin sees all
             2 => ['DetailRekamMedis', 'RekamMedis'], // Dokter
             3 => ['RekamMedis'], // Perawat
-            4 => ['Pet', 'Pemilik'], // Resepsionis
+            4 => ['Pet', 'Pemilik', 'TemuDokter'], // Resepsionis
             5 => [], // Pemilik
             default => [],
         };

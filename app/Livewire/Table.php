@@ -28,7 +28,11 @@ class Table extends Component
         $this->data = $this->data->map(function ($item) use ($relationships) {
             foreach ($relationships as $relationship) {
                 if ($relationship === 'role') {
-                    $item->roles = $item->role->pluck('nama_role')->join("\n");
+                    if ($item->role instanceof \Illuminate\Support\Collection) {
+                        $item->roles = $item->role->pluck('nama_role')->join("\n");
+                    } else {
+                        $item->role = $item->role->nama_role ?? '';
+                    }
                 } elseif ($relationship === 'rasHewan') {
                     if ($item->rasHewan instanceof \Illuminate\Database\Eloquent\Collection) {
                         $item->ras_hewan = $item->rasHewan->pluck('nama_ras')->join("\n");
@@ -45,6 +49,12 @@ class Table extends Component
                     $item->pemilik = $item->pemilik->user->nama ?? '';
                 } elseif ($relationship === 'user') {
                     $item->nama_pemilik = $item->user->nama ?? '';
+                } elseif ($relationship === 'pet') {
+                    $item->pet = $item->pet->nama ?? '';
+                } elseif ($relationship === 'roleUser') {
+                    $item->role_user = $item->roleUser->role->nama_role ?? '';
+                } elseif ($relationship === 'rekamMedis') {
+                    $item->rekam_medis = $item->rekamMedis->idrekam_medis ?? '';
                 }
             }
             return $item;

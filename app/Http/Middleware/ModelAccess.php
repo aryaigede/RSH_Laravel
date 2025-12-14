@@ -57,6 +57,7 @@ class ModelAccess
             'Pemilik',
             'RekamMedis',
             'DetailRekamMedis',
+            'TemuDokter',
             'Role',
             'User',
         ];
@@ -65,7 +66,7 @@ class ModelAccess
             1 => $allModels, // Admin
             2 => ['DetailRekamMedis', 'RekamMedis'], // Dokter
             3 => ['RekamMedis'], // Perawat
-            4 => ['Pet', 'Pemilik'], // Resepsionis
+            4 => ['Pet', 'Pemilik', 'TemuDokter'], // Resepsionis
             5 => [], // Pemilik 
             default => [],
         };
