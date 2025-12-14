@@ -8,6 +8,7 @@
     @fluxAppearance
 </head>
 <body class="bg-white dark:bg-zinc-800">
+    @php($currentUser = $user ?? auth()->user())
     <div class="flex min-h-screen">
         @livewire('sidebar', ['model' => request()->get('model')], key('sidebar'))
 
@@ -22,12 +23,15 @@
 
                     <flux:menu>
                         <flux:menu.radio.group>
-                            <flux:menu.radio checked>{{ $user->nama }}</flux:menu.radio>
+                            <flux:menu.radio checked>{{ $currentUser?->nama }}</flux:menu.radio>
                         </flux:menu.radio.group>
 
                         <flux:menu.separator />
 
-                        <flux:menu.item icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+                        </form>
                     </flux:menu>
                 </flux:dropdown>
             </flux:header>

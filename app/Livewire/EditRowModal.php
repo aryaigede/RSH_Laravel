@@ -114,7 +114,7 @@ class EditRowModal extends Component
         }
 
         $this->dispatch('rowUpdated');
-        return redirect()->route('dashboard', ['model' => class_basename($this->model)]);
+        return redirect()->route('admin.dashboard.data', ['model' => class_basename($this->model)]);
     }
 
     public function getRelatedModel($field)

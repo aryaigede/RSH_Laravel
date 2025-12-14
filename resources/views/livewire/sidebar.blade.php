@@ -11,18 +11,40 @@
         </flux:sidebar.header>
     
         <flux:sidebar.nav>
-            <flux:sidebar.item icon="home" href="{{ route('dashboard') }}" current="{{ $model === null }}">Home</flux:sidebar.item>
-            <flux:sidebar.item icon="inbox" href="{{ route('dashboard.data', ['model' => 'JenisHewan']) }}" current="{{ $model === 'JenisHewan' }}">Jenis Hewan</flux:sidebar.item>
-            <flux:sidebar.item icon="globe-asia-australia" href="{{ route('dashboard.data', ['model' => 'RasHewan']) }}" current="{{ $model === 'RasHewan' }}">Ras Hewan</flux:sidebar.item>
-            <flux:sidebar.item icon="folder" href="{{ route('dashboard.data', ['model' => 'Kategori']) }}" current="{{ $model === 'Kategori' }}">Kategori</flux:sidebar.item>
-            <flux:sidebar.item icon="folder-plus" href="{{ route('dashboard.data', ['model' => 'KategoriKlinis']) }}" current="{{ $model === 'KategoriKlinis' }}">Kategori Klinis</flux:sidebar.item>
-            <flux:sidebar.item icon="book-open" href="{{ route('dashboard.data', ['model' => 'KodeTindakanTerapi']) }}" current="{{ $model === 'KodeTindakanTerapi' }}">Kode Tindakan Terapi</flux:sidebar.item>
-            <flux:sidebar.item icon="swatch" href="{{ route('dashboard.data', ['model' => 'Pet']) }}" current="{{ $model === 'Pet' }}">Pet</flux:sidebar.item>
-            <flux:sidebar.item icon="user-group" href="{{ route('dashboard.data', ['model' => 'Pemilik']) }}" current="{{ $model === 'Pemilik' }}">Pemilik</flux:sidebar.item>
-            <flux:sidebar.item icon="clipboard-document-list" href="{{ route('dashboard.data', ['model' => 'RekamMedis']) }}" current="{{ $model === 'RekamMedis' }}">Rekam Medis</flux:sidebar.item>
-            <flux:sidebar.item icon="document-text" href="{{ route('dashboard.data', ['model' => 'DetailRekamMedis']) }}" current="{{ $model === 'DetailRekamMedis' }}">Detail Rekam Medis</flux:sidebar.item>
-            <flux:sidebar.item icon="identification" href="{{ route('dashboard.data', ['model' => 'Role']) }}" current="{{ $model === 'Role' }}">Role</flux:sidebar.item>
-            <flux:sidebar.item icon="user" href="{{ route('dashboard.data', ['model' => 'User']) }}" current="{{ $model === 'User' }}">User</flux:sidebar.item>
+            <flux:sidebar.item icon="home" href="{{ $homeRoute }}" current="{{ $model === null }}">Home</flux:sidebar.item>
+            @if ($menuVisibility['JenisHewan'] ?? false)
+                <flux:sidebar.item icon="inbox" href="{{ route('admin.dashboard.data', ['model' => 'JenisHewan']) }}" current="{{ $model === 'JenisHewan' }}">Jenis Hewan</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['RasHewan'] ?? false)
+                <flux:sidebar.item icon="globe-asia-australia" href="{{ route('admin.dashboard.data', ['model' => 'RasHewan']) }}" current="{{ $model === 'RasHewan' }}">Ras Hewan</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['Kategori'] ?? false)
+                <flux:sidebar.item icon="folder" href="{{ route('admin.dashboard.data', ['model' => 'Kategori']) }}" current="{{ $model === 'Kategori' }}">Kategori</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['KategoriKlinis'] ?? false)
+                <flux:sidebar.item icon="folder-plus" href="{{ route('admin.dashboard.data', ['model' => 'KategoriKlinis']) }}" current="{{ $model === 'KategoriKlinis' }}">Kategori Klinis</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['KodeTindakanTerapi'] ?? false)
+                <flux:sidebar.item icon="book-open" href="{{ route('admin.dashboard.data', ['model' => 'KodeTindakanTerapi']) }}" current="{{ $model === 'KodeTindakanTerapi' }}">Kode Tindakan Terapi</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['Pet'] ?? false)
+                <flux:sidebar.item icon="swatch" href="{{ route('admin.dashboard.data', ['model' => 'Pet']) }}" current="{{ $model === 'Pet' }}">Pet</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['Pemilik'] ?? false)
+                <flux:sidebar.item icon="user-group" href="{{ route('admin.dashboard.data', ['model' => 'Pemilik']) }}" current="{{ $model === 'Pemilik' }}">Pemilik</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['RekamMedis'] ?? false)
+                <flux:sidebar.item icon="clipboard-document-list" href="{{ route('admin.dashboard.data', ['model' => 'RekamMedis']) }}" current="{{ $model === 'RekamMedis' }}">Rekam Medis</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['DetailRekamMedis'] ?? false)
+                <flux:sidebar.item icon="document-text" href="{{ route('admin.dashboard.data', ['model' => 'DetailRekamMedis']) }}" current="{{ $model === 'DetailRekamMedis' }}">Detail Rekam Medis</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['Role'] ?? false)
+                <flux:sidebar.item icon="identification" href="{{ route('admin.dashboard.data', ['model' => 'Role']) }}" current="{{ $model === 'Role' }}">Role</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['User'] ?? false)
+                <flux:sidebar.item icon="user" href="{{ route('admin.dashboard.data', ['model' => 'User']) }}" current="{{ $model === 'User' }}">User</flux:sidebar.item>
+            @endif
         </flux:sidebar.nav>
     
         <flux:sidebar.spacer />
@@ -42,7 +64,10 @@
     
                 <flux:menu.separator />
     
-                <flux:menu.item icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+                </form>
             </flux:menu>
         </flux:dropdown>
     </flux:sidebar>

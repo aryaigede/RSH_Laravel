@@ -27,7 +27,7 @@ class DeleteConfirmationModal extends Component
         $record->delete();
 
         $this->dispatch('rowDeleted');
-        return redirect()->route('dashboard.data', ['model' => class_basename($this->model)]);
+        return redirect()->route('admin.dashboard.data', ['model' => class_basename($this->model)]);
     }
 
     public function render()

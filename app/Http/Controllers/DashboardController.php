@@ -18,8 +18,11 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $userWithRoles = User::with('role')->find(Auth::id());
+        $roleId = optional($userWithRoles->role->first())->idrole;
+        $allowedModels = $this->allowedModelsByRole($roleId);
 
-        $modelName = $request->get('model', 'JenisHewan');
+        $requestedModel = $request->get('model');
+        $modelName = $requestedModel ?? ($allowedModels[0] ?? 'JenisHewan');
         $modelClass = "App\\Models\\{$modelName}";
 
         $relationships = [];
@@ -73,6 +76,32 @@ class DashboardController extends Controller
         ]);
     }
 
+    private function allowedModelsByRole(?int $roleId): array
+    {
+        $allModels = [
+            'JenisHewan',
+            'RasHewan',
+            'Kategori',
+            'KategoriKlinis',
+            'KodeTindakanTerapi',
+            'Pet',
+            'Pemilik',
+            'RekamMedis',
+            'DetailRekamMedis',
+            'Role',
+            'User',
+        ];
+
+        return match ($roleId) {
+            1 => $allModels,
+            2 => ['DetailRekamMedis', 'RekamMedis'],
+            3 => ['RekamMedis'],
+            4 => ['Pet', 'Pemilik'],
+            5 => [],
+            default => [],
+        };
+    }
+
     // CREATE - Store new record
     public function store(Request $request)
     {
@@ -86,7 +115,7 @@ class DashboardController extends Controller
         // Create the record
         $modelClass::create($data);
         
-        return redirect()->route('dashboard', ['model' => $modelName])
+        return redirect()->route('admin.dashboard.data', ['model' => $modelName])
             ->with('success', $modelName . ' created successfully!');
     }
 
@@ -104,7 +133,7 @@ class DashboardController extends Controller
         // Update the record
         $record->update($data);
         
-        return redirect()->route('dashboard', ['model' => $modelName])
+        return redirect()->route('admin.dashboard.data', ['model' => $modelName])
             ->with('success', $modelName . ' updated successfully!');
     }
 
@@ -117,7 +146,7 @@ class DashboardController extends Controller
         $record = $modelClass::findOrFail($id);
         $record->delete();
         
-        return redirect()->route('dashboard', ['model' => $modelName])
+        return redirect()->route('admin.dashboard.data', ['model' => $modelName])
             ->with('success', $modelName . ' deleted successfully!');
     }
 }
