@@ -7,13 +7,19 @@
 
         <form wire:submit="save" class="space-y-6">
             @foreach($fillable as $field)
-                @if(in_array($field, ['idpemilik', 'idras_hewan', 'idjenis_hewan', 'idkategori', 'idkategori_klinis', 'iduser', 'idrole']))
+                @if(in_array($field, ['idpemilik', 'idras_hewan', 'idjenis_hewan', 'idkategori', 'idkategori_klinis', 'iduser', 'idrole', 'dokter_pemeriksa']))
                     <flux:field>
                         <flux:label>{{ ucfirst(str_replace('_', ' ', $field)) }}</flux:label>
                         <flux:select wire:model="formData.{{ $field }}" placeholder="Pilih {{ ucfirst(str_replace('_', ' ', $field)) }}">
                             @php
-                                $relatedModel = $this->getRelatedModel($field);
-                                $options = $relatedModel ? $relatedModel::all() : [];
+                                if ($field === 'dokter_pemeriksa') {
+                                    $options = \App\Models\User::whereHas('role', function ($q) {
+                                        $q->where('nama_role', 'Dokter');
+                                    })->get();
+                                } else {
+                                    $relatedModel = $this->getRelatedModel($field);
+                                    $options = $relatedModel ? $relatedModel::all() : [];
+                                }
                             @endphp
                             @foreach($options as $option)
                                 <option value="{{ $option->getKey() }}">{{ $option->getKeyName() ? $option->{$option->getKeyName()} : $option->id }} - {{ $this->getDisplayName($option) }}</option>

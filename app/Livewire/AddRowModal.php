@@ -113,6 +113,7 @@ class AddRowModal extends Component
             'idkategori_klinis' => \App\Models\KategoriKlinis::class,
             'iduser' => \App\Models\User::class,
             'idrole' => \App\Models\Role::class,
+            'dokter_pemeriksa' => \App\Models\User::class,
         ];
 
         return $mappings[$field] ?? null;

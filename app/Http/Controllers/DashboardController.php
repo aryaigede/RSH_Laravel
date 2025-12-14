@@ -48,7 +48,7 @@ class DashboardController extends Controller
                 break;
             case 'Pemilik':
                 $relationships = ['user', 'pets'];
-                $columns = ['no_wa', 'alamat', 'user'];
+                $columns = ['nama_pemilik', 'no_wa', 'alamat'];
                 break;
             case 'RekamMedis':
                 $relationships = ['pet', 'dokter'];

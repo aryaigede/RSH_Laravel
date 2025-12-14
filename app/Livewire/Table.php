@@ -43,6 +43,8 @@ class Table extends Component
                     $item->kategori_klinis = $item->kategoriKlinis->nama_kategori_klinis ?? '';
                 } elseif ($relationship === 'pemilik.user') {
                     $item->pemilik = $item->pemilik->user->nama ?? '';
+                } elseif ($relationship === 'user') {
+                    $item->nama_pemilik = $item->user->nama ?? '';
                 }
             }
             return $item;
