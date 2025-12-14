@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function home()
+    {
+        $user = User::with('role')->find(Auth::id());
+        return view('dashboard.home', ['user' => $user]);
+    }
+
     public function index(Request $request)
     {
         $userWithRoles = User::with('role')->find(Auth::id());
@@ -39,6 +45,18 @@ class DashboardController extends Controller
             case 'Pet':
                 $relationships = ['pemilik.user', 'rasHewan'];
                 $columns = ['nama', 'tanggal_lahir', 'warna_tanda', 'jenis_kelamin', 'pemilik', 'ras_hewan'];
+                break;
+            case 'Pemilik':
+                $relationships = ['user', 'pets'];
+                $columns = ['no_wa', 'alamat', 'user'];
+                break;
+            case 'RekamMedis':
+                $relationships = ['pet', 'dokter'];
+                $columns = ['anamnesa', 'temuan_klinis', 'diagnosa', 'pet', 'dokter'];
+                break;
+            case 'DetailRekamMedis':
+                $relationships = ['rekamMedis', 'kodeTindakanTerapi'];
+                $columns = ['detail', 'rekam_medis', 'kode_tindakan_terapi'];
                 break;
             default:
                 $columns = (new $modelClass)->getFillable();

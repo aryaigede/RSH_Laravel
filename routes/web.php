@@ -20,7 +20,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
 // Dashboard routes 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'home'])->name('dashboard');
+    Route::get('/dashboard/data', [DashboardController::class, 'index'])->name('dashboard.data');
     Route::post('/dashboard/store', [DashboardController::class, 'store'])->name('dashboard.store');
     Route::put('/dashboard/{id}', [DashboardController::class, 'update'])->name('dashboard.update');
     Route::delete('/dashboard/{id}', [DashboardController::class, 'destroy'])->name('dashboard.destroy');

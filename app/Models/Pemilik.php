@@ -3,8 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Pemilik extends User
+class Pemilik extends Model
 {
     use HasFactory;
 
@@ -12,17 +13,23 @@ class Pemilik extends User
 
     protected $primaryKey = 'idpemilik';
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'nama',
-        'email',
-        'password',
         'no_wa',
         'alamat',
         'iduser',
     ];
 
+    // Relasi ke User
     public function user()
     {
-        return $this->belongsTo(User::class, 'iduser', 'iduser');
+        return $this->belongsTo(User::class, 'iduser', 'id');
+    }
+
+    // Relasi ke Pet (Hewan)
+    public function pets()
+    {
+        return $this->hasMany(Pet::class, 'idpemilik', 'idpemilik');
     }
 }
