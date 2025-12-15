@@ -51,10 +51,10 @@ class EditRowModal extends Component
         ],
         \App\Models\RekamMedis::class => [
             'idpet' => 'required|exists:pet,idpet',
-            'tanggal_kunjungan' => 'required|date',
-            'keluhan' => 'nullable|string',
+            'dokter_pemeriksa' => 'required|exists:role_user,idrole_user',
+            'anamnesa' => 'nullable|string',
+            'temuan_klinis' => 'nullable|string',
             'diagnosa' => 'nullable|string',
-            'prognosis' => 'nullable|string',
         ],
         \App\Models\DetailRekamMedis::class => [
             'idrekam_medis' => 'required|exists:rekam_medis,idrekam_medis',
@@ -76,6 +76,20 @@ class EditRowModal extends Component
         ],
         \App\Models\Role::class => [
             'nama_role' => 'required|string|max:255',
+        ],
+        \App\Models\Dokter::class => [
+            'id_user' => 'required|exists:users,id',
+            'alamat' => 'nullable|string|max:100',
+            'no_hp' => 'nullable|string|max:45',
+            'bidang_dokter' => 'nullable|string|max:100',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+        ],
+        \App\Models\Perawat::class => [
+            'id_user' => 'required|exists:users,id',
+            'alamat' => 'nullable|string|max:100',
+            'no_hp' => 'nullable|string|max:45',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'pendidikan' => 'nullable|string|max:100',
         ],
     ];
 
@@ -132,13 +146,14 @@ class EditRowModal extends Component
         $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
 
         foreach ($methods as $method) {
-            if ($method->class === get_class($instance) && !$method->isStatic()) {
+            // Only check methods defined on this class, not static, and with no required parameters
+            if ($method->class === get_class($instance) && !$method->isStatic() && $method->getNumberOfRequiredParameters() === 0) {
                 try {
                     $relation = $instance->{$method->getName()}();
                     if ($relation instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
                         $manyToManyRelationships[] = $method->getName();
                     }
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     // Skip if method is not a relationship
                 }
             }
@@ -162,7 +177,8 @@ class EditRowModal extends Component
 
         foreach ($this->formData as $key => $value) {
             if (in_array($key, $this->fillable)) {
-                $fillableData[$key] = $value;
+                // Normalize empty strings to null for nullable columns (e.g., deleted_by)
+                $fillableData[$key] = ($value === '') ? null : $value;
             } elseif (in_array($key, $this->manyToManyRelationships)) {
                 $manyToManyData[$key] = $value;
             }

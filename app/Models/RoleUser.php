@@ -3,12 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\SetsDeletedBy;
 
 class RoleUser extends Model
 {
+    use SoftDeletes, SetsDeletedBy;
+
     protected $table = 'role_user';
 
-    public $incrementing = false;
+    protected $primaryKey = 'idrole_user';
 
     public $timestamps = false;
 
@@ -20,7 +24,17 @@ class RoleUser extends Model
     protected $fillable = [
         'iduser',
         'idrole',
+        'deleted_by',
     ];
+
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
+    }
 
     public function user()
     {

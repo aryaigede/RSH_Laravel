@@ -4,11 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\SetsDeletedBy;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    use HasFactory, Notifiable, SoftDeletes, SetsDeletedBy;
+
     // Use Laravel default table 'users' and primary key 'id'
     // protected $table = 'user';
     // protected $primaryKey = 'iduser';
@@ -22,6 +26,7 @@ class User extends Authenticatable
         'nama',
         'email',
         'password',
+        'deleted_by',
     ];
 
     /**
@@ -42,7 +47,13 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'deleted_at' => 'datetime',
         ];
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
     }
 
     public function role()

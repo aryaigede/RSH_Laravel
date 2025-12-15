@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\SetsDeletedBy;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pemilik extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, SetsDeletedBy;
 
     protected $table = 'pemilik';
 
@@ -19,7 +21,17 @@ class Pemilik extends Model
         'no_wa',
         'alamat',
         'iduser',
+        'deleted_by',
     ];
+
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
+    }
 
     // Relasi ke User
     public function user()

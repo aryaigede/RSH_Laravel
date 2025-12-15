@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 
 class DashboardController extends Controller
@@ -54,7 +55,8 @@ class DashboardController extends Controller
                 $columns = ['nama_pemilik', 'no_wa', 'alamat'];
                 break;
             case 'RekamMedis':
-                $relationships = ['pet', 'dokter'];
+                // Load dokter.user so the Table component can display doctor's name
+                $relationships = ['pet', 'dokter.user'];
                 $columns = ['anamnesa', 'temuan_klinis', 'diagnosa', 'pet', 'dokter'];
                 break;
             case 'DetailRekamMedis':
@@ -62,8 +64,28 @@ class DashboardController extends Controller
                 $columns = ['detail', 'rekam_medis', 'kode_tindakan_terapi'];
                 break;
             case 'TemuDokter':
-                $relationships = ['pet', 'roleUser', 'rekamMedis'];
+                $relationships = ['pet', 'roleUser.user', 'rekamMedis'];
                 $columns = ['no_urut', 'waktu_daftar', 'status', 'pet', 'role_user', 'rekam_medis'];
+                break;
+            case 'Dokter':
+                $relationships = ['user'];
+                $columns = ['nama_dokter', 'alamat', 'no_hp', 'bidang_dokter', 'jenis_kelamin'];
+                break;
+            case 'Perawat':
+                $relationships = ['user'];
+                $columns = ['nama_perawat', 'alamat', 'no_hp', 'jenis_kelamin', 'pendidikan'];
+                break;
+            case 'Role':
+                $relationships = [];
+                $columns = ['nama_role'];
+                break;
+            case 'Kategori':
+                $relationships = [];
+                $columns = ['nama_kategori'];
+                break;
+            case 'KategoriKlinis':
+                $relationships = []; 
+                $columns = ['nama_kategori_klinis'];
                 break;
             default:
                 $columns = (new $modelClass)->getFillable();
@@ -93,6 +115,8 @@ class DashboardController extends Controller
             'RekamMedis',
             'DetailRekamMedis',
             'TemuDokter',
+            'Dokter',
+            'Perawat',
             'Role',
             'User',
         ];
@@ -107,15 +131,26 @@ class DashboardController extends Controller
         };
     }
 
+    private function modelMetadata(string $modelClass): array
+    {
+        $instance = new $modelClass;
+
+        return [
+            'table' => $instance->getTable(),
+            'primaryKey' => $instance->getKeyName(),
+        ];
+    }
+
     // CREATE - Store new record
     public function store(Request $request)
     {
         $modelName = $request->input('model');
         $modelClass = "App\\Models\\{$modelName}";
-        
-        // Get fillable fields from the model
+
+        // Get fillable fields and table metadata
         $model = new $modelClass;
         $data = $request->only($model->getFillable());
+        ['table' => $table] = $this->modelMetadata($modelClass);
 
         if ($modelName === 'TemuDokter') {
             $today = now()->toDateString();
@@ -123,12 +158,12 @@ class DashboardController extends Controller
 
             $data['no_urut'] = $data['no_urut'] ?? $nextNumber;
             $data['waktu_daftar'] = $data['waktu_daftar'] ?? now();
-                $data['status'] = $data['status'] ?? \App\Models\TemuDokter::STATUS_NEW;
+            $data['status'] = $data['status'] ?? \App\Models\TemuDokter::STATUS_NEW;
         }
         
-        // Create the record
-        $modelClass::create($data);
-        
+        // Create record via query builder
+        DB::table($table)->insert($data);
+
         return redirect()->route('admin.dashboard.data', ['model' => $modelName])
             ->with('success', $modelName . ' created successfully!');
     }
@@ -138,14 +173,13 @@ class DashboardController extends Controller
     {
         $modelName = $request->input('model');
         $modelClass = "App\\Models\\{$modelName}";
-        
-        $record = $modelClass::findOrFail($id);
-        
-        // Get fillable fields from the model
-        $data = $request->only($record->getFillable());
-        
-        // Update the record
-        $record->update($data);
+        $model = new $modelClass;
+        $data = $request->only($model->getFillable());
+
+        ['table' => $table, 'primaryKey' => $primaryKey] = $this->modelMetadata($modelClass);
+
+        // Update via query builder
+        DB::table($table)->where($primaryKey, $id)->update($data);
         
         return redirect()->route('admin.dashboard.data', ['model' => $modelName])
             ->with('success', $modelName . ' updated successfully!');
@@ -156,9 +190,9 @@ class DashboardController extends Controller
     {
         $modelName = $request->input('model');
         $modelClass = "App\\Models\\{$modelName}";
-        
-        $record = $modelClass::findOrFail($id);
-        $record->delete();
+        ['table' => $table, 'primaryKey' => $primaryKey] = $this->modelMetadata($modelClass);
+
+        DB::table($table)->where($primaryKey, $id)->delete();
         
         return redirect()->route('admin.dashboard.data', ['model' => $modelName])
             ->with('success', $modelName . ' deleted successfully!');

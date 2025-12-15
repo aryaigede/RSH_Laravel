@@ -48,13 +48,43 @@ class Table extends Component
                 } elseif ($relationship === 'pemilik.user') {
                     $item->pemilik = $item->pemilik->user->nama ?? '';
                 } elseif ($relationship === 'user') {
+                    // For Pemilik, Dokter, Perawat
                     $item->nama_pemilik = $item->user->nama ?? '';
+                    $item->nama_dokter = $item->user->nama ?? '';
+                    $item->nama_perawat = $item->user->nama ?? '';
                 } elseif ($relationship === 'pet') {
-                    $item->pet = $item->pet->nama ?? '';
-                } elseif ($relationship === 'roleUser') {
-                    $item->role_user = $item->roleUser->role->nama_role ?? '';
+                    if ($item->pet) {
+                        $petName = $item->pet->nama ?? '';
+                        $item->pet = trim($petName, ' -');
+                    } else {
+                        $item->pet = '';
+                    }
+                } elseif ($relationship === 'roleUser.user' || $relationship === 'roleUser') {
+                    $item->role_user = $item->roleUser && $item->roleUser->user 
+                        ? $item->roleUser->user->nama . ' (Dokter)'
+                        : '';
                 } elseif ($relationship === 'rekamMedis') {
                     $item->rekam_medis = $item->rekamMedis->idrekam_medis ?? '';
+                } elseif ($relationship === 'kodeTindakanTerapi') {
+                    if ($item->kodeTindakanTerapi) {
+                        $code = $item->kodeTindakanTerapi->kode ?? '';
+                        $name = $item->kodeTindakanTerapi->nama_tindakan
+                            ?? $item->kodeTindakanTerapi->deskripsi_tindakan_terapi
+                            ?? '';
+                        $item->kode_tindakan_terapi = trim($code . ' - ' . $name, ' -');
+                    } else {
+                        $item->kode_tindakan_terapi = '';
+                    }
+                } elseif ($relationship === 'dokter' || $relationship === 'dokter.user') {
+                    // Some records may store dokter via role_user relation or via dokter() relation.
+                    // Prefer the `dokter` relationship if it exists, otherwise try the related roleUser.
+                    if (isset($item->dokter) && $item->dokter && isset($item->dokter->user)) {
+                        $item->dokter = $item->dokter->user->nama ?? '';
+                    } elseif (isset($item->roleUser) && $item->roleUser && isset($item->roleUser->user)) {
+                        $item->dokter = $item->roleUser->user->nama ?? '';
+                    } else {
+                        $item->dokter = '';
+                    }
                 }
             }
             return $item;

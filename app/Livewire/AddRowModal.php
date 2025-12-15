@@ -23,10 +23,9 @@ class AddRowModal extends Component
             'jenis_kelamin' => 'nullable|in:Jantan,Betina',
         ],
         \App\Models\Pemilik::class => [
-            'nama' => 'required|string|max:255',
+            'no_wa' => 'nullable|string|max:20',
             'alamat' => 'nullable|string|max:500',
-            'no_telepon' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'iduser' => 'required|exists:users,id',
         ],
         \App\Models\JenisHewan::class => [
             'nama_jenis_hewan' => 'required|string|max:255',
@@ -44,16 +43,16 @@ class AddRowModal extends Component
         ],
         \App\Models\KodeTindakanTerapi::class => [
             'kode' => 'required|string|max:50',
-            'nama_tindakan' => 'required|string|max:255',
+            'deskripsi_tindakan_terapi' => 'required|string|max:255',
             'idkategori_klinis' => 'required|exists:kategori_klinis,idkategori_klinis',
             'harga' => 'nullable|numeric|min:0',
         ],
         \App\Models\RekamMedis::class => [
             'idpet' => 'required|exists:pet,idpet',
-            'tanggal_kunjungan' => 'required|date',
-            'keluhan' => 'nullable|string',
+            'dokter_pemeriksa' => 'required|exists:role_user,idrole_user',
+            'anamnesa' => 'nullable|string',
+            'temuan_klinis' => 'nullable|string',
             'diagnosa' => 'nullable|string',
-            'prognosis' => 'nullable|string',
         ],
         \App\Models\DetailRekamMedis::class => [
             'idrekam_medis' => 'required|exists:rekam_medis,idrekam_medis',
@@ -76,6 +75,20 @@ class AddRowModal extends Component
         \App\Models\Role::class => [
             'nama_role' => 'required|string|max:255',
         ],
+        \App\Models\Dokter::class => [
+            'id_user' => 'required|exists:users,id',
+            'alamat' => 'nullable|string|max:100',
+            'no_hp' => 'nullable|string|max:45',
+            'bidang_dokter' => 'nullable|string|max:100',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+        ],
+        \App\Models\Perawat::class => [
+            'id_user' => 'required|exists:users,id',
+            'alamat' => 'nullable|string|max:100',
+            'no_hp' => 'nullable|string|max:45',
+            'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
+            'pendidikan' => 'nullable|string|max:100',
+        ],
     ];
 
     public function mount($model)
@@ -94,11 +107,9 @@ class AddRowModal extends Component
 
         // Prefill queue data for TemuDokter
         if ($this->model === TemuDokter::class) {
-            $today = now()->toDateString();
-            $nextNumber = (TemuDokter::whereDate('waktu_daftar', $today)->max('no_urut') ?? 0) + 1;
-
-            $this->formData['no_urut'] = $nextNumber;
-            $this->formData['waktu_daftar'] = now()->toDateString();
+            $date = now()->toDateString();
+            $this->formData['waktu_daftar'] = $date;
+            $this->formData['no_urut'] = $this->computeNextQueueNumber($date);
             $this->formData['status'] = TemuDokter::STATUS_NEW;
         }
     }
@@ -128,13 +139,14 @@ class AddRowModal extends Component
         $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
 
         foreach ($methods as $method) {
-            if ($method->class === get_class($instance) && !$method->isStatic()) {
+            // Only check methods defined on this class, not static, and with no required parameters
+            if ($method->class === get_class($instance) && !$method->isStatic() && $method->getNumberOfRequiredParameters() === 0) {
                 try {
                     $relation = $instance->{$method->getName()}();
                     if ($relation instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
                         $manyToManyRelationships[] = $method->getName();
                     }
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     // Skip if method is not a relationship
                 }
             }
@@ -147,11 +159,9 @@ class AddRowModal extends Component
     {
         // Auto-fill queue fields for TemuDokter before validating
         if ($this->model === TemuDokter::class) {
-            $today = now()->toDateString();
-            $nextNumber = (TemuDokter::whereDate('waktu_daftar', $today)->max('no_urut') ?? 0) + 1;
-
-            $this->formData['no_urut'] = $this->formData['no_urut'] ?: $nextNumber;
-            $this->formData['waktu_daftar'] = $this->formData['waktu_daftar'] ?: now()->toDateString();
+            $date = $this->formData['waktu_daftar'] ?: now()->toDateString();
+            $this->formData['waktu_daftar'] = $date;
+            $this->formData['no_urut'] = $this->formData['no_urut'] ?: $this->computeNextQueueNumber($date);
             $this->formData['status'] = $this->formData['status'] ?: TemuDokter::STATUS_NEW;
         }
 
@@ -166,7 +176,8 @@ class AddRowModal extends Component
 
         foreach ($this->formData as $key => $value) {
             if (in_array($key, $this->fillable)) {
-                $fillableData[$key] = $value;
+                // Convert empty strings to null for nullable fields
+                $fillableData[$key] = $value === '' ? null : $value;
             } elseif (in_array($key, $this->manyToManyRelationships)) {
                 $manyToManyData[$key] = $value;
             }
@@ -241,7 +252,7 @@ class AddRowModal extends Component
 
     public function getDisplayName($option)
     {
-        $nameFields = ['nama', 'nama_pemilik', 'nama_ras', 'nama_jenis_hewan', 'nama_kategori', 'nama_kategori_klinis', 'nama_role', 'nama_tindakan', 'email', 'kode'];
+        $nameFields = ['nama', 'nama_pemilik', 'nama_ras', 'nama_jenis_hewan', 'nama_kategori', 'nama_kategori_klinis', 'nama_role', 'nama_tindakan', 'deskripsi_tindakan_terapi', 'email', 'kode'];
 
         foreach ($nameFields as $field) {
             if (isset($option->$field)) {
@@ -255,6 +266,21 @@ class AddRowModal extends Component
         }
 
         return $option->getKey();
+    }
+
+    // Live-update queue number when date changes on TemuDokter form
+    public function updated($name, $value)
+    {
+        if ($this->model === TemuDokter::class && $name === 'formData.waktu_daftar') {
+            $date = $value ?: now()->toDateString();
+            $this->formData['no_urut'] = $this->computeNextQueueNumber($date);
+        }
+    }
+
+    private function computeNextQueueNumber(string $date): int
+    {
+        $max = TemuDokter::whereDate('waktu_daftar', $date)->max('no_urut');
+        return ($max ?? 0) + 1;
     }
 
     public function render()

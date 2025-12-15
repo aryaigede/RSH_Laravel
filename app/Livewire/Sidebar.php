@@ -43,6 +43,8 @@ class Sidebar extends Component
             'RekamMedis' => false,
             'DetailRekamMedis' => false,
             'TemuDokter' => false,
+            'Dokter' => false,
+            'Perawat' => false,
             'Role' => false,
             'User' => false,
         ];

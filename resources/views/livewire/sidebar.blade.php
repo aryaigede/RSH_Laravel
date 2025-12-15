@@ -42,6 +42,12 @@
             @if ($menuVisibility['TemuDokter'] ?? false)
                 <flux:sidebar.item icon="calendar-days" href="{{ route('admin.dashboard.data', ['model' => 'TemuDokter']) }}" current="{{ $model === 'TemuDokter' }}">Temu Dokter</flux:sidebar.item>
             @endif
+            @if ($menuVisibility['Dokter'] ?? false)
+                <flux:sidebar.item icon="heart" href="{{ route('admin.dashboard.data', ['model' => 'Dokter']) }}" current="{{ $model === 'Dokter' }}">Dokter</flux:sidebar.item>
+            @endif
+            @if ($menuVisibility['Perawat'] ?? false)
+                <flux:sidebar.item icon="shield-check" href="{{ route('admin.dashboard.data', ['model' => 'Perawat']) }}" current="{{ $model === 'Perawat' }}">Perawat</flux:sidebar.item>
+            @endif
             @if ($menuVisibility['Role'] ?? false)
                 <flux:sidebar.item icon="identification" href="{{ route('admin.dashboard.data', ['model' => 'Role']) }}" current="{{ $model === 'Role' }}">Role</flux:sidebar.item>
             @endif

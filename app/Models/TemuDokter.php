@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\SetsDeletedBy;
 
 class TemuDokter extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, SetsDeletedBy;
 
     public const STATUS_NEW = 'N';
     public const STATUS_FINISHED = 'F';
@@ -30,6 +31,7 @@ class TemuDokter extends Model
 
     protected $casts = [
         'waktu_daftar' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     // Human-readable status label
@@ -55,5 +57,10 @@ class TemuDokter extends Model
     public function rekamMedis()
     {
         return $this->belongsTo(RekamMedis::class, 'idrekam_medis', 'idrekam_medis');
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
     }
 }

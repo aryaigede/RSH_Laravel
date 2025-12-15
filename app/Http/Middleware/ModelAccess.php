@@ -58,6 +58,8 @@ class ModelAccess
             'RekamMedis',
             'DetailRekamMedis',
             'TemuDokter',
+            'Dokter',
+            'Perawat',
             'Role',
             'User',
         ];

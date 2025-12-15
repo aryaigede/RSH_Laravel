@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\SetsDeletedBy;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DetailRekamMedis extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, SetsDeletedBy;
 
     protected $table = 'detail_rekam_medis';
 
@@ -19,7 +21,17 @@ class DetailRekamMedis extends Model
         'idrekam_medis',
         'idkode_tindakan_terapi',
         'detail',
+        'deleted_by',
     ];
+
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by', 'id');
+    }
 
     // Relasi ke Rekam Medis
     public function rekamMedis()

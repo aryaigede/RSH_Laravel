@@ -8,7 +8,7 @@
                             {{ ucfirst(str_replace('_', ' ', $column)) }}
                         </th>
                     @endforeach
-                    <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-300 uppercase tracking-wider">
+                    <th class="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-300 uppercase tracking-wider">
                         Aksi
                     </th>
                 </tr>
@@ -36,8 +36,8 @@
                                 @endif
                             </td>
                         @endforeach
-                        <td class="px-6 py-4 text-sm text-zinc-900 dark:text-zinc-100 whitespace-nowrap">
-                            <div class="flex gap-2">
+                        <td class="px-6 py-4 text-sm text-zinc-900 dark:text-zinc-100 whitespace-nowrap text-right">
+                            <div class="flex gap-2 justify-end">
                                 <flux:modal.trigger name="edit-{{ $row->getKey() }}">
                                     <flux:button variant="ghost" size="sm" icon="pencil" class="cursor-pointer"></flux:button>
                                 </flux:modal.trigger>
