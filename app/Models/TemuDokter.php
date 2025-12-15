@@ -9,6 +9,9 @@ class TemuDokter extends Model
 {
     use SoftDeletes;
 
+    public const STATUS_NEW = 'N';
+    public const STATUS_FINISHED = 'F';
+
     protected $table = 'temu_dokter';
 
     protected $primaryKey = 'idreservasi_dokter';
@@ -28,6 +31,16 @@ class TemuDokter extends Model
     protected $casts = [
         'waktu_daftar' => 'datetime',
     ];
+
+    // Human-readable status label
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            self::STATUS_NEW => 'New',
+            self::STATUS_FINISHED => 'Finished',
+            default => $this->status ?? '-',
+        };
+    }
 
     public function pet()
     {

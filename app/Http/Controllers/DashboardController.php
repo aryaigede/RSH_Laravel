@@ -123,8 +123,7 @@ class DashboardController extends Controller
 
             $data['no_urut'] = $data['no_urut'] ?? $nextNumber;
             $data['waktu_daftar'] = $data['waktu_daftar'] ?? now();
-            $data['status'] = $data['status'] ?? 'N';
-            // Leave idrole_user as provided or null; FK expects role_user.idrole_user
+                $data['status'] = $data['status'] ?? \App\Models\TemuDokter::STATUS_NEW;
         }
         
         // Create the record
