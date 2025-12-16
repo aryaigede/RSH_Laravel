@@ -51,7 +51,7 @@ class Sidebar extends Component
 
         $allowed = match ($roleId) {
             1 => array_keys($base), // Admin sees all
-            2 => ['DetailRekamMedis', 'RekamMedis'], // Dokter
+            2 => ['DetailRekamMedis'], // Dokter
             3 => ['RekamMedis'], // Perawat
             4 => ['Pet', 'Pemilik', 'TemuDokter'], // Resepsionis
             5 => [], // Pemilik

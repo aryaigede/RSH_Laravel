@@ -123,7 +123,7 @@ class DashboardController extends Controller
 
         return match ($roleId) {
             1 => $allModels,
-            2 => ['DetailRekamMedis', 'RekamMedis'],
+            2 => ['DetailRekamMedis'],
             3 => ['RekamMedis'],
             4 => ['Pet', 'Pemilik', 'TemuDokter'],
             5 => [],
